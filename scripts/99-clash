@@ -1,0 +1,2 @@
+[ "$DEVICENAME" = utun -a "$ACTION" = add ] && /usr/lib/clash/setup-tun.sh
+[ "$DEVICENAME" = utun -a "$ACTION" = remove ] && /usr/lib/clash/clean-tun.sh

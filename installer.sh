@@ -16,18 +16,12 @@ function enforce_command() {
     fi
 }
 
-function enforce_directory() {
-    if [[ ! -d "$1" ]]; then
-        echo "Directory '$1' not found"
-        exit 1
-    fi
-}
-
 function _remove_legacy_files() {
     enforce_command rm
     
-    rm -rf /usr/lib/systemd/system/clash.service
-    rm -rf /usr/lib/udev/rules.d/99-clash.rules
+    rm -rf /etc/init.d/setup-cgroup
+    rm -rf /etc/init.d/clash
+    rm -rf /etc/hotplug.d/net/99-clash
 }
 
 function _install_clash_premium() {
@@ -74,9 +68,7 @@ function _install() {
     enforce_command install
     enforce_command nft
     enforce_command ip
-    
-    enforce_directory "/etc/systemd/system"
-    enforce_directory "/etc/udev/rules.d"
+
     
     if ! grep net_cls "/proc/cgroups" > /dev/null 2>&1 ;then
         echo "cgroup not support net_cls"
@@ -89,7 +81,7 @@ function _install() {
 
     _remove_legacy_files
 
-    systemctl disable --now clash
+    /etc/init.d/clash stop
     
     assert install -d -m 0755 /etc/default/
     assert install -d -m 0755 /usr/lib/clash/
@@ -104,8 +96,9 @@ function _install() {
     assert install -m 0700 scripts/setup-tun.sh /usr/lib/clash/setup-tun.sh
     assert install -m 0700 scripts/setup-cgroup.sh /usr/lib/clash/setup-cgroup.sh
     
-    assert install -m 0644 scripts/clash.service /etc/systemd/system/clash.service
-    assert install -m 0644 scripts/99-clash.rules /etc/udev/rules.d/99-clash.rules
+    assert install -m 0644 scripts/clash /etc/init.d/clash
+    assert install -m 0644 scripts/setup-cgroup /etc/init.d/setup-cgroup
+    assert install -m 0644 scripts/99-clash /etc/hotplug.d/net/99-clash
     
     echo "Install successfully"
     echo ""
@@ -121,15 +114,15 @@ function _install() {
 }
 
 function _uninstall() {
-    enforce_command systemctl
     enforce_command rm
     
-    systemctl stop clash
-    systemctl disable clash
+    /etc/init.d/clash stop
+    /etc/init.d/clash disable
     
     rm -rf /usr/lib/clash
-    rm -rf /usr/lib/systemd/system/clash.service
-    rm -rf /usr/lib/udev/rules.d/99-clash.rules
+    rm -rf /etc/init.d/setup-cgroup
+    rm -rf /etc/init.d/clash
+    rm -rf /etc/hotplug.d/net/99-clash
     rm -rf /usr/bin/clash
     rm -rf /usr/bin/bypass-proxy-uid
     rm -rf /usr/bin/bypass-proxy
