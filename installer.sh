@@ -33,7 +33,6 @@ function _install_clash_premium() {
     enforce_command "grep"
     enforce_command "xargs"
     enforce_command "gzip"
-    enforce_directory "/usr/bin"
     
     case "$(uname -m)" in
         "x86_64") arch="amd64";;
@@ -80,8 +79,6 @@ function _install() {
     fi
 
     _remove_legacy_files
-
-    /etc/init.d/clash stop
     
     assert install -d -m 0755 /etc/default/
     assert install -d -m 0755 /usr/lib/clash/
@@ -96,8 +93,8 @@ function _install() {
     assert install -m 0700 scripts/setup-tun.sh /usr/lib/clash/setup-tun.sh
     assert install -m 0700 scripts/setup-cgroup.sh /usr/lib/clash/setup-cgroup.sh
     
-    assert install -m 0644 scripts/clash /etc/init.d/clash
-    assert install -m 0644 scripts/setup-cgroup /etc/init.d/setup-cgroup
+    assert install -m 0755 scripts/clash /etc/init.d/clash
+    assert install -m 0755 scripts/setup-cgroup /etc/init.d/setup-cgroup
     assert install -m 0644 scripts/99-clash /etc/hotplug.d/net/99-clash
     
     echo "Install successfully"
