@@ -1,26 +1,21 @@
-# Clash Premiun Installer
+# Clash Premium Installer
 
-Simple clash premiun core installer with full tun support for Linux.
+Simple clash premium core installer with full tun support for Linux.
+
+修改自Kr328原脚本适配OpenWrt Snapshot
 
 
 
 ### Usage
 
-1. Install dependencies **git**, **nftables**, **iproute2**
+openwrt snapshot已经从fw3转到fw4(使用nftables)
 
-2. Clone repository
+官方源码snapshot默认编译cgroups
 
-   ```bash
-   git clone https://github.com/Kr328/clash-premium-installer
-   cd clash-premium-installer
-   ```
+需要安装kmod-tun, cgroup-tools, cgroupfs-mount, coreutils-install, bash, git-http
 
-3. Download clash core [link](https://github.com/Dreamacro/clash/releases/tag/premium)
+clash nftables规则会和fw4默认规则冲突导致lan无法连接, 需要修改规则, 由于个人仅把op作旁路网关，所以建议省事直接清空op默认fw4规则
 
-4. Extract core and rename it to `./clash`
-
-5. Run Installer
-
-   ```bash
-   ./installer.sh install
-   ```
+```bash
+nft delete table inet fw4
+```
